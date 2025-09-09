@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	_ "image/png"
+	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 
 	chai "github.com/chai2010/webp"
-	"golang.org/x/image/webp"
 )
 
 const (
@@ -33,30 +33,30 @@ func formatsList() *Formats {
 	}
 }
 
-func convertWebPToJPEG(inputPath, outputPath string) error {
-	webpFile, err := os.Open(inputPath)
-	if err != nil {
-		return fmt.Errorf("Error while opening file: %v", err)
-	}
-	defer webpFile.Close()
+// func convertWebPToJPEG(inputPath, outputPath string) error {
+// 	webpFile, err := os.Open(inputPath)
+// 	if err != nil {
+// 		return fmt.Errorf("Error while opening file: %v", err)
+// 	}
+// 	defer webpFile.Close()
 
-	img, err := webp.Decode(webpFile)
-	if err != nil {
-		return fmt.Errorf("Error while decoding file WebP: %v", err)
-	}
+// 	img, err := webp.Decode(webpFile)
+// 	if err != nil {
+// 		return fmt.Errorf("Error while decoding file WebP: %v", err)
+// 	}
 
-	jpegFile, err := os.Create(outputPath)
-	if err != nil {
-		return fmt.Errorf("Error while creating file JPEG: %v", err)
-	}
-	defer jpegFile.Close()
+// 	jpegFile, err := os.Create(outputPath)
+// 	if err != nil {
+// 		return fmt.Errorf("Error while creating file JPEG: %v", err)
+// 	}
+// 	defer jpegFile.Close()
 
-	err = jpeg.Encode(jpegFile, img, &jpeg.Options{Quality: 90})
-	if err != nil {
-		return fmt.Errorf("Error while converting the file to WebP: %v", err)
-	}
-	return nil
-}
+// 	err = jpeg.Encode(jpegFile, img, &jpeg.Options{Quality: 90})
+// 	if err != nil {
+// 		return fmt.Errorf("Error while converting the file to WebP: %v", err)
+// 	}
+// 	return nil
+// }
 
 func convertWebPToJPEGasChai(inputPath, outputPath string) error {
 	var width, height int
@@ -72,23 +72,22 @@ func convertWebPToJPEGasChai(inputPath, outputPath string) error {
 	}
 	fmt.Printf("width = %d, height = %d\n", width, height)
 
-	// GetMetadata
-	// if metadata, err := chai.GetMetadata(file, "ICCP"); err != nil {
-	// 	fmt.Printf("Metadata: err = %v\n", err)
-	// } else {
-	// 	fmt.Printf("Metadata: %s\n", string(metadata))
-	// }
-
 	m, err := chai.Decode(bytes.NewReader(file))
 	if err != nil {
 		return err
 	}
 
-	jpegFile, err := os.Create(outputPath)
+	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	err = jpeg.Encode(jpegFile, m, &jpeg.Options{Quality: 100})
+	isPNG := strings.HasSuffix(outputPath, ".png")
+	if isPNG {
+		err = png.Encode(outputFile, m)
+	} else {
+		err = jpeg.Encode(outputFile, m, &jpeg.Options{Quality: 100})
+	}
+
 	if err != nil {
 		return err
 	}

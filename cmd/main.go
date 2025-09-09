@@ -22,7 +22,7 @@ func main() {
 	// flag.String("dir", "", "Путь к директории с изображениями")
 	flag.StringVar(&cfg.fromType, "from", "", "Тип изображений для конвертации (например, jpg, png)")
 	flag.StringVar(&cfg.toType, "to", "", "Тип изображений, в который нужно конвертировать (например, png, jpg)")
-	flag.IntVar(&cfg.depth, "depth", 0, "Глубина обхода root")
+	flag.IntVar(&cfg.depth, "depth", 1, "Глубина обхода root")
 
 	args := os.Args[1:]
 	if len(args) < 1 {
@@ -42,16 +42,51 @@ func main() {
 		if cfg.dir != "" && cfg.fromType != "" && cfg.toType != "" {
 			fmt.Printf("Checking dir: %v\n", cfg.dir)
 			fmt.Println("Parsing files in the folder")
-			var err error
-			if cfg.depth != 0 {
-				err, _ = walkDirectory(cfg.dir, cfg.depth)
-			} else {
-				err, _ = walkDirectory(cfg.dir, 1)
-			}
+
+			path, err := os.Stat(cfg.dir)
 			if err != nil {
-				fmt.Printf("Error while walking: %v", err)
+				fmt.Printf("Error while cheking the path %s: %v\n", path, err)
 			}
+			if !path.IsDir() {
+				fmt.Println("Error. Given path is not a dir")
+				return
+			}
+
+			if cfg.depth == 0 {
+				cfg.depth = 1
+			}
+			walker, err := NewDirectoryWalker(cfg.dir, cfg.depth)
+			if err != nil {
+				fmt.Printf("Error at new directory walker func")
+			}
+			fmt.Printf("New obj - %+v\n", walker)
+			if err := walker.Walk(); err != nil {
+				fmt.Println("Ошибка при обходе директории:", err)
+			}
+			// fmt.Printf("root - %v\n", walker.root)
+			// fmt.Printf("Depth - %v\n", walker.maxDepth)
+			// fmt.Printf("base - %v\n", walker.baseDepth)
+			// fmt.Printf("list - %v\n", walker.foundFiles)
+
+			// var err error
+			// if cfg.depth != 0 {
+			// 	err, _ = walkDirectory(cfg.dir, cfg.depth)
+			// } else {
+			// 	err, _ = walkDirectory(cfg.dir, 1)
+			// }
+			// if err != nil {
+			// 	fmt.Printf("Error while walking: %v", err)
+			// }
 		}
 	}
 	fmt.Println("Exit")
 }
+
+// walker, err := NewDirectoryWalker("/path/to/directory", 3)
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+
+//     if err := walker.Walk(); err != nil {
+//         log.Println("Ошибка при обходе директории:", err)
+//     }
