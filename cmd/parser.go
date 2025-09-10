@@ -18,10 +18,12 @@ type DirectoryWalker struct {
 	root       string
 	maxDepth   int
 	baseDepth  int
+	fromType   string
+	toType     string
 	foundFiles []string
 }
 
-func NewDirectoryWalker(root string, maxDepth int) (*DirectoryWalker, error) {
+func NewDirectoryWalker(root, from, to string, maxDepth int) (*DirectoryWalker, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {
 		return nil, err
@@ -31,6 +33,8 @@ func NewDirectoryWalker(root string, maxDepth int) (*DirectoryWalker, error) {
 		root:      absRoot,
 		maxDepth:  maxDepth,
 		baseDepth: strings.Count(absRoot, string(os.PathSeparator)),
+		fromType:  from,
+		toType:    to,
 	}, nil
 }
 
@@ -70,14 +74,10 @@ func (dw *DirectoryWalker) walkFunc(path string, entry fs.DirEntry, err error) e
 	return nil
 }
 
-func (dw *DirectoryWalker) processFile(path string, suffix string) error {
+func (dw *DirectoryWalker) processFile(path string) error {
 	_, filetype, err := checkType(path)
 	if err != nil {
 		return err
-	}
-
-	if !dw.checkImageSuffix(suffix) {
-		return fmt.Errorf("Suffix is not compare to jpg|png|webp")
 	}
 
 	switch filetype {
@@ -97,12 +97,6 @@ func (dw *DirectoryWalker) processFile(path string, suffix string) error {
 	}
 
 	return nil
-}
-
-func (dw *DirectoryWalker) checkImageSuffix(suffix string) bool {
-	suffix = strings.ToLower(suffix)
-	suffix = strings.ReplaceAll(suffix, ".", "")
-	return suffix == "jpg" || suffix == "jpeg" || suffix == "png" || suffix == "webp"
 }
 
 func checkPath(path string) error {

@@ -6,17 +6,8 @@ import (
 	"os"
 )
 
-type config struct {
-	dir      string
-	input    string
-	output   string
-	fromType string
-	toType   string
-	depth    int
-}
-
 func main() {
-	var cfg config
+	var cfg Config
 
 	flag.StringVar(&cfg.dir, "dir", "", "path to a dir")
 	// flag.String("dir", "", "Путь к директории с изображениями")
@@ -40,6 +31,16 @@ func main() {
 		flag.Parse()
 
 		if cfg.dir != "" && cfg.fromType != "" && cfg.toType != "" {
+			if !cfg.CheckConfigType(cfg.fromType) || !cfg.CheckConfigType(cfg.toType) {
+				fmt.Println("Suffix is not compare to jpg|png|webp")
+				return
+			}
+
+			if cfg.fromType == cfg.toType {
+				fmt.Println("Error with types. Convert types must be different")
+				return
+			}
+
 			fmt.Printf("Checking dir: %v\n", cfg.dir)
 			fmt.Println("Parsing files in the folder")
 
@@ -55,7 +56,7 @@ func main() {
 			if cfg.depth == 0 {
 				cfg.depth = 1
 			}
-			walker, err := NewDirectoryWalker(cfg.dir, cfg.depth)
+			walker, err := NewDirectoryWalker(cfg.dir, cfg.fromType, cfg.toType, cfg.depth)
 			if err != nil {
 				fmt.Printf("Error at new directory walker func")
 			}
