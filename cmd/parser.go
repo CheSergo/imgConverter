@@ -11,6 +11,7 @@ import (
 const (
 	webpType = "webp"
 	jpegType = "jpeg"
+	jpgType  = "jpg"
 	pngType  = "png"
 )
 
@@ -52,11 +53,11 @@ func (dw *DirectoryWalker) walkFunc(path string, entry fs.DirEntry, err error) e
 	}
 
 	depth := strings.Count(path, string(os.PathSeparator)) - dw.baseDepth
-	fmt.Println("Current_depth is ", depth)
-	fmt.Println("Given_depth is ", dw.maxDepth)
+	// fmt.Println("Current_depth is ", depth)
+	// fmt.Println("Given_depth is ", dw.maxDepth)
 	if depth > dw.maxDepth {
-		fmt.Printf("Current depth - %d is bigger then %d", depth, dw.maxDepth)
-		fmt.Println("Exit with if/else")
+		// fmt.Printf("Current depth - %d is bigger then %d", depth, dw.maxDepth)
+		// fmt.Println("Exit with if/else")
 		return nil
 	}
 	fmt.Printf("Current path is - [%s]\n", path)
@@ -64,9 +65,9 @@ func (dw *DirectoryWalker) walkFunc(path string, entry fs.DirEntry, err error) e
 		fmt.Println("Skipping root dir")
 		return nil
 	}
-	fmt.Println("We are here")
+	// fmt.Println("We are here")
 	if !entry.IsDir() {
-		fmt.Println("not a dir")
+		// fmt.Println("not a dir")
 		if err := dw.processFile(path); err != nil {
 			return err
 		}
@@ -85,12 +86,17 @@ func (dw *DirectoryWalker) processFile(path string) error {
 		case webpType:
 			fmt.Println("Формат: WEBp")
 			newPath := changeFileExtension(path, dw.toType)
-			err := convertWebPToJPEGasChai(path, newPath)
+			err := convertWebP(path, newPath)
 			if err != nil {
 				return fmt.Errorf("failed to convert %s to %s: %w", path, dw.toType, err)
 			}
-		case jpegType:
+		case jpegType, jpgType:
 			fmt.Println("Формат: JPEG")
+			newPath := changeFileExtension(path, dw.toType)
+			err := convertJpeg(path, newPath)
+			if err != nil {
+				return fmt.Errorf("failed to convert %s to %s: %w", path, dw.toType, err)
+			}
 		case pngType:
 			fmt.Println("Формат: PNG")
 		default:

@@ -7,14 +7,25 @@ import (
 )
 
 func main() {
-	var cfg Config
+	cfg := EmptyConfig()
 
-	flag.StringVar(&cfg.dir, "dir", "", "path to a dir")
-	// flag.String("dir", "", "Путь к директории с изображениями")
-	flag.StringVar(&cfg.fromType, "from", "", "Тип изображений для конвертации (например, jpg, png)")
-	flag.StringVar(&cfg.toType, "to", "", "Тип изображений, в который нужно конвертировать (например, png, jpg)")
-	flag.IntVar(&cfg.depth, "depth", 1, "Глубина обхода root")
+	flag.StringVar(&cfg.dir, "dir", "", "Path to the directory with images")
+	fromType := flag.String("from", "", "Type of images to convert (e.g. jpg, png)")
+	toType := flag.String("to", "", "The type of images to convert to (e.g. png, jpg)")
+	dep := flag.Int("depth", 1, "Root folder traversal depth")
+	flag.Parse()
 
+	err := cfg.setType(*fromType, "from")
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = cfg.setType(*toType, "to")
+	if err != nil {
+		fmt.Println(err)
+	}
+	cfg.addDepth(*dep)
+
+	// Checking amount of args
 	args := os.Args[1:]
 	if len(args) < 1 {
 		fmt.Println("No args")
@@ -23,18 +34,13 @@ func main() {
 		cfg.input = args[0]
 		cfg.output = args[1]
 
-		err := convertWebPToJPEGasChai(cfg.input, cfg.output)
+		err := convertWebP(cfg.input, cfg.output)
 		if err != nil {
-			fmt.Println("Main error")
+			fmt.Println("Error while converting files")
 		}
 	} else if len(args) >= 3 {
-		flag.Parse()
 
 		if cfg.dir != "" && cfg.fromType != "" && cfg.toType != "" {
-			if !cfg.CheckConfigType(cfg.fromType) || !cfg.CheckConfigType(cfg.toType) {
-				fmt.Println("Suffix is not compare to jpg|png|webp")
-				return
-			}
 
 			if cfg.fromType == cfg.toType {
 				fmt.Println("Error with types. Convert types must be different")
@@ -52,10 +58,11 @@ func main() {
 				fmt.Println("Error. Given path is not a dir")
 				return
 			}
-
 			if cfg.depth == 0 {
 				cfg.depth = 1
 			}
+
+			// Main logic
 			walker, err := NewDirectoryWalker(cfg.dir, cfg.fromType, cfg.toType, cfg.depth)
 			if err != nil {
 				fmt.Printf("Error at new directory walker func")
@@ -64,30 +71,7 @@ func main() {
 			if err := walker.Walk(); err != nil {
 				fmt.Println("Ошибка при обходе директории:", err)
 			}
-			// fmt.Printf("root - %v\n", walker.root)
-			// fmt.Printf("Depth - %v\n", walker.maxDepth)
-			// fmt.Printf("base - %v\n", walker.baseDepth)
-			// fmt.Printf("list - %v\n", walker.foundFiles)
-
-			// var err error
-			// if cfg.depth != 0 {
-			// 	err, _ = walkDirectory(cfg.dir, cfg.depth)
-			// } else {
-			// 	err, _ = walkDirectory(cfg.dir, 1)
-			// }
-			// if err != nil {
-			// 	fmt.Printf("Error while walking: %v", err)
-			// }
 		}
 	}
 	fmt.Println("Exit")
 }
-
-// walker, err := NewDirectoryWalker("/path/to/directory", 3)
-//     if err != nil {
-//         log.Fatal(err)
-//     }
-
-//     if err := walker.Walk(); err != nil {
-//         log.Println("Ошибка при обходе директории:", err)
-//     }

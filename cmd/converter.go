@@ -19,46 +19,7 @@ const (
 	Webp = "webp"
 )
 
-type Formats struct {
-	png  string
-	jpeg string
-	webp string
-}
-
-func formatsList() *Formats {
-	return &Formats{
-		png:  Png,
-		jpeg: Jpeg,
-		webp: Webp,
-	}
-}
-
-// func convertWebPToJPEG(inputPath, outputPath string) error {
-// 	webpFile, err := os.Open(inputPath)
-// 	if err != nil {
-// 		return fmt.Errorf("Error while opening file: %v", err)
-// 	}
-// 	defer webpFile.Close()
-
-// 	img, err := webp.Decode(webpFile)
-// 	if err != nil {
-// 		return fmt.Errorf("Error while decoding file WebP: %v", err)
-// 	}
-
-// 	jpegFile, err := os.Create(outputPath)
-// 	if err != nil {
-// 		return fmt.Errorf("Error while creating file JPEG: %v", err)
-// 	}
-// 	defer jpegFile.Close()
-
-// 	err = jpeg.Encode(jpegFile, img, &jpeg.Options{Quality: 90})
-// 	if err != nil {
-// 		return fmt.Errorf("Error while converting the file to WebP: %v", err)
-// 	}
-// 	return nil
-// }
-
-func convertWebPToJPEGasChai(inputPath, outputPath string) error {
+func convertWebP(inputPath, outputPath string) error {
 	var width, height int
 
 	file, err := os.ReadFile(inputPath)
@@ -94,6 +55,35 @@ func convertWebPToJPEGasChai(inputPath, outputPath string) error {
 	fmt.Printf("Save the file - [%s]\n", outputPath)
 
 	// Decode
+	return nil
+}
+
+func convertJpeg(inputPath, outputPath string) error {
+	file, err := os.ReadFile(inputPath)
+	if err != nil {
+		return err
+	}
+
+	jpegFile, err := jpeg.Decode(bytes.NewReader(file))
+	if err != nil {
+		return err
+	}
+
+	// Creatig file
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	isPNG := strings.HasSuffix(outputPath, ".png")
+	if isPNG {
+		err = png.Encode(outputFile, jpegFile)
+	} else {
+		err = chai.Encode(outputFile, jpegFile, &chai.Options{Lossless: true})
+	}
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
