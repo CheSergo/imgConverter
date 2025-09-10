@@ -80,20 +80,22 @@ func (dw *DirectoryWalker) processFile(path string) error {
 		return err
 	}
 
-	switch filetype {
-	case webpType:
-		fmt.Println("Формат: WEBp")
-		// newPath := changeFileExtension(path, "jpg")
-		// err := convertWebPToJPEGasChai(path, newPath)
-		// if err != nil {
-		// 	return fmt.Errorf("failed to convert %s to JPG: %w", path, err)
-		// }
-	case jpegType:
-		fmt.Println("Формат: JPEG")
-	case pngType:
-		fmt.Println("Формат: PNG")
-	default:
-		fmt.Println("Неизвестный формат")
+	if dw.fromType == filetype {
+		switch filetype {
+		case webpType:
+			fmt.Println("Формат: WEBp")
+			newPath := changeFileExtension(path, dw.toType)
+			err := convertWebPToJPEGasChai(path, newPath)
+			if err != nil {
+				return fmt.Errorf("failed to convert %s to %s: %w", path, dw.toType, err)
+			}
+		case jpegType:
+			fmt.Println("Формат: JPEG")
+		case pngType:
+			fmt.Println("Формат: PNG")
+		default:
+			fmt.Println("Неизвестный формат")
+		}
 	}
 
 	return nil
