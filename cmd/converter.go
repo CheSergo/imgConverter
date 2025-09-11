@@ -87,6 +87,36 @@ func convertJpeg(inputPath, outputPath string) error {
 	return nil
 }
 
+func convertPng(inputPath, outputPath string) error {
+	file, err := os.ReadFile(inputPath)
+	if err != nil {
+		return err
+	}
+
+	pngFile, err := png.Decode(bytes.NewBuffer(file))
+	if err != nil {
+		return err
+	}
+
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+
+	isWebp := strings.HasSuffix(outputPath, ".webp")
+	if isWebp {
+		err = chai.Encode(outputFile, pngFile, &chai.Options{Lossless: true})
+	} else {
+		err = jpeg.Encode(outputFile, pngFile, &jpeg.Options{Quality: 100})
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func checkType(path string) (image.Image, string, error) {
 
 	file, err := os.Open(path)

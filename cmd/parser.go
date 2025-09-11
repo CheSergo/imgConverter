@@ -99,6 +99,11 @@ func (dw *DirectoryWalker) processFile(path string) error {
 			}
 		case pngType:
 			fmt.Println("Формат: PNG")
+			newPath := changeFileExtension(path, dw.fromType)
+			err := convertPng(path, newPath)
+			if err != nil {
+				return fmt.Errorf("failed to convert %s to %s: %w", path, dw.toType, err)
+			}
 		default:
 			fmt.Println("Неизвестный формат")
 		}
@@ -131,80 +136,4 @@ func checkIsDir(path string) (bool, error) {
 
 	return filepath.IsDir(), nil
 
-	// if filepath.IsDir() {
-	// 	return true, nil
-	// } else {
-	// 	return false, nil
-	// }
 }
-
-// func walkDirectory(root string, maxDepth int) (error, []string) {
-// 	absRoot, err := filepath.Abs(root)
-// 	if err != nil {
-// 		return err, nil
-// 	}
-
-// 	baseDepth := strings.Count(absRoot, string(os.PathSeparator))
-// 	var list []string
-// 	firstIteration := true
-
-// 	err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		if entry.Type()&fs.ModeSymlink != 0 {
-// 			return nil
-// 		}
-
-// 		if firstIteration {
-// 			firstIteration = false
-// 			b, err := checkIsDir(path)
-// 			if err != nil {
-// 				return err
-// 			}
-// 			if b {
-// 				return nil
-// 			} else {
-// 				return fmt.Errorf("Path is a file")
-// 			}
-// 		}
-
-// 		absRoot, err := filepath.Abs(path)
-// 		if err != nil {
-// 			return nil
-// 		}
-
-// 		depth := strings.Count(absRoot, string(os.PathSeparator)) - baseDepth
-// 		if depth <= maxDepth {
-// 			if entry.IsDir() {
-// 				return fs.SkipDir
-// 			} else {
-// 				_, tp, err := checkType(path)
-// 				if err != nil {
-// 					return err
-// 				}
-
-// 				types := formatsList()
-// 				switch tp {
-// 				case types.webp:
-// 					newPath := changeFileExtension(path, "jpg")
-// 					err := convertWebPToJPEGasChai(path, newPath)
-// 					if err != nil {
-// 						return fmt.Errorf("failed to convert %s to JPG: %w", path, err)
-// 					}
-// 				case types.jpeg:
-// 					fmt.Println("Формат: JPEG")
-// 				case types.png:
-// 					fmt.Println("Формат: PNG")
-// 				default:
-// 					fmt.Println("Неизвестный формат")
-// 				}
-// 			}
-// 			return nil
-// 		}
-// 		return nil
-// 	})
-
-// 	return err, list
-// }
