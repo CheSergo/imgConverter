@@ -9,6 +9,7 @@ import (
 type application struct {
 	logger *slog.Logger
 	// config *models.Config
+	walker *DirectoryWalker
 }
 
 func main() {
@@ -52,11 +53,11 @@ func main() {
 		cfg.Depth = 1
 	}
 
-	walker, err := NewDirectoryWalker(cfg.Dir, cfg.FromType, cfg.ToType, cfg.Depth)
+	app.walker, err = NewDirectoryWalker(cfg.Dir, cfg.FromType, cfg.ToType, cfg.Depth)
 	if err != nil {
 		app.logger.Error("Error creating new directory walker", "error", err)
 	}
-	if err := walker.Walk(); err != nil {
+	if err := app.Walk(); err != nil {
 		app.logger.Error("Error while walking the directory", "error", err)
 	}
 

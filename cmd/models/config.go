@@ -65,26 +65,6 @@ func (c *Config) ValidateConfig() error {
 	return nil
 }
 
-// rename to create?
-// func newConfig(input, output, dir, from, to string, depth int) (*Config, error) {
-// 	if depth < 0 {
-// 		return nil, fmt.Errorf("Depth cannot be less then 0")
-// 	}
-
-// 	if to == "jpg" {
-// 		to = "jpeg"
-// 	}
-
-// 	return &Config{
-// 		Dir:      dir,
-// 		Input:    input,
-// 		Output:   output,
-// 		FromType: from,
-// 		ToType:   to,
-// 		Depth:    depth,
-// 	}, nil
-// }
-
 func (c *Config) addDepth(depth int) error {
 	if depth < 0 {
 		return fmt.Errorf("Depth cannot be less then 0")
