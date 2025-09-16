@@ -130,7 +130,6 @@ func checkType(path string) (image.Image, string, error) {
 	if err != nil {
 		return nil, "", fmt.Errorf("Error while deconding format: %v", err)
 	}
-	// fmt.Printf("File format - %s\n", format)
 
 	return img, format, nil
 }
@@ -138,12 +137,12 @@ func checkType(path string) (image.Image, string, error) {
 func changeFileExtension(path, newExt string) string {
 	// Получаем базовое имя файла без расширения
 	base := filepath.Base(path)
-	fmt.Printf("Base - [%s]\n", base)
+	// fmt.Printf("Base - [%s]\n", base)
 	// Получаем имя файла без расширения
 	name := base[:len(base)-len(filepath.Ext(base))]
-	fmt.Printf("Name - [%s]\n", name)
+	// fmt.Printf("Name - [%s]\n", name)
 	// Формируем новый путь с новым расширением
 	newPath := filepath.Join(filepath.Dir(path), name+"."+newExt)
-	fmt.Printf("Newpath - [%s]\n", newPath)
+	// fmt.Printf("Newpath - [%s]\n", newPath)
 	return newPath
 }
