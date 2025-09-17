@@ -4,6 +4,7 @@ import (
 	"imgConverter/cmd/models"
 	"log/slog"
 	"os"
+	// tea "github.com/charmbracelet/bubbletea"
 )
 
 type application struct {
@@ -13,6 +14,12 @@ type application struct {
 }
 
 func main() {
+	// prog := tea.NewProgram(models.InitialModel())
+	// if _, err := prog.Run(); err != nil {
+	// 	fmt.Printf("Alas, there's been an error: %v\n", err)
+	// 	os.Exit(1)
+	// }
+
 	// init logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	app := &application{
@@ -28,7 +35,7 @@ func main() {
 	cfg := models.NewConfig(args)
 
 	if len(args) == 2 {
-		if err := convertWebP(cfg.Input, cfg.Output); err != nil {
+		if err := app.handleImageConversion(cfg.Input, cfg.Output, false); err != nil {
 			app.logger.Error("Error while converting files", "error", err.Error())
 		}
 		return
