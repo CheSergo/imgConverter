@@ -35,7 +35,12 @@ func main() {
 	cfg := models.NewConfig(args)
 
 	if len(args) == 2 {
-		if err := app.handleImageConversion(cfg.Input, cfg.Output, false); err != nil {
+		_, fileType, err := checkType(cfg.Input)
+		if err != nil {
+			app.logger.Error("Error with a filetype", "Err", err)
+			return
+		}
+		if err := app.handleImageConversion(fileType, cfg.Input, cfg.Output); err != nil {
 			app.logger.Error("Error while converting files", "error", err.Error())
 		}
 		return
